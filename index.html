@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Socket Man</title>
+	<script src="javascript/jquery.min.js"></script>
+  <script src="javascript/socket.io.js"></script>
+  <script src="javascript/notify.min.js"></script>
+  <script src="javascript/notify-metro.js"></script>
+  <script src="javascript/jquery.core.js"></script>
+  <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="css/bootstrap.min.css"/>
+<link rel="stylesheet" href="css/notify-metro.css"/>
+<style type="text/css">
+	button{
+	    padding: 10px;
+    	border-radius: 4px
+	},
+	body {width:200; height:300;}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="row">
+    <h1><img src='imgs/logo.png'>Socket Man</h1>
+    <hr>
+    <div class="row">
+    	<div class="col-md-6">
+			<label class="control-label">URL</label>
+			<input type="text" id="socketUrl" class="form-control" placeholder="localhost:3100" />
+    	</div>
+    	<div class="col-md-4">
+    	<br>
+    		<button type="button" class="btn-primary" id="btConnect">Connect</button>
+    	</div>
+    </div>
+    <hr>
+    <div class="row">
+    	<div class="col-md-4">
+    	     <p><input type="text" id="socketEmitName" class='form-control' placeholder="Event Name"></p>
+    	</div>
+    </div>	
+    <div class="row">
+    <div class="col-md-4">
+<textarea rows="4" cols="50" id="socketEmitData" class='form-control' placeholder="Data"></textarea>
+    </div>
+    </div>
+    <div class="row">
+    <div class="col-md-4">
+    <br>
+   		 <button type="button" id="btEmit" class="btn-primary">Emit Socket</button>
+    </div>
+    </div>
+    <hr>
+    <div class="row">
+    <div class="col-md-4">
+<input type="text" id="socketListenTo" class='form-control' placeholder="Event to Listen"><br> <button type="button" class="btn-primary" id="btListen">Listen Socket</button>
+    </div>
+    </div>
+    <hr>
+        <div class="row">
+        <p><label id="socketListenResponse" class='control-label'></label></p>
+        </div>
+      </div>
+      </div>
+</body>
+  <script>
+      jQuery(document).ready(function () {
+          var socket 
+		  var connectSocket=$("#btConnect");
+
+          connectSocket.click(function () {
+  		  var socketUrl= 'ws://' +  $('#socketUrl').val();	
+          socket= io.connect(socketUrl);
+			socket.on('connect', function() {
+				  	if(socket.connected){
+							$("#socketUrl").prop('disabled',true);	
+						  	connectSocket.toggleClass('btn-success');
+						  	connectSocket.text('Connected');
+						  	 $.Notification.autoHideNotify('success','top right','Socket Success','Connection Established');
+						  	 connectStatus=false;
+				  	}
+			});
+          });
+
+          $("#btEmit").click(function () {
+              socket.emit($('#socketEmitName').val(),$('#socketEmitData').val());
+              $.Notification.autoHideNotify('success','top right','Emitting','Emit Successful');
+          });
+
+          $("#btListen").click(function () {
+          	$.Notification.autoHideNotify('success','top right','Success','Listening Carefully');
+
+
+              socket.on($('#socketListenTo').val(), function (data) {
+                  var jsonData= JSON.stringify(data);
+                  $("#socketListenResponse").hide(400);
+                  $('#socketListenResponse').text(jsonData);
+                  $("#socketListenResponse").show(400);
+              });
+          });
+      });
+  </script>
+
+</html>
+
